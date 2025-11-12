@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hopsworks API Explorer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      padding: 2rem;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      color: #58a6ff;
+    }
+    
+    .subtitle {
+      color: #8b949e;
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+    }
+    
+    .stats {
+      background: #161b22;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 2rem;
+      border: 1px solid #30363d;
+    }
+    
+    .domains {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+    
+    .domain-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 1.5rem;
+      transition: all 0.2s;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    
+    .domain-card:hover {
+      border-color: #58a6ff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(88, 166, 255, 0.1);
+    }
+    
+    .domain-name {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #58a6ff;
+      margin-bottom: 0.5rem;
+    }
+    
+    .domain-stats {
+      color: #8b949e;
+      font-size: 0.9rem;
+    }
+    
+    .endpoint-count {
+      font-weight: 600;
+      color: #c9d1d9;
+    }
+    
+    .tag-count {
+      color: #8b949e;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Hopsworks API Explorer</h1>
+    <p class="subtitle">v4.2.0 - Browse 670 endpoints across 14 domains</p>
+    
+    <div class="stats">
+      <strong>🎯 Select a domain below to explore its endpoints</strong>
+    </div>
+    
+    <div class="domains" id="domains"></div>
+  </div>
+  
+  <script>
+    const domains = [
+      { name: 'FeatureStore', endpoints: 205, tags: 33, file: 'featurestore.json', desc: 'Feature groups, views, training datasets' },
+      { name: 'Auth', endpoints: 48, tags: 8, file: 'auth.json', desc: 'Authentication, API keys, users' },
+      { name: 'Admin', endpoints: 46, tags: 13, file: 'admin.json', desc: 'Administration, configuration, Kubernetes' },
+      { name: 'Python', endpoints: 45, tags: 9, file: 'python.json', desc: 'Python environments, libraries, commands' },
+      { name: 'Alerts', endpoints: 38, tags: 7, file: 'alerts.json', desc: 'Alert management, receivers, routes' },
+      { name: 'Projects', endpoints: 38, tags: 4, file: 'projects.json', desc: 'Project management, activities' },
+      { name: 'Jobs', endpoints: 31, tags: 5, file: 'jobs.json', desc: 'Job execution, schedules, alerts' },
+      { name: 'Jupyter', endpoints: 27, tags: 3, file: 'jupyter.json', desc: 'Jupyter notebooks, Ray sessions' },
+      { name: 'Git', endpoints: 23, tags: 3, file: 'git.json', desc: 'Git repositories, execution' },
+      { name: 'Dataset', endpoints: 15, tags: 6, file: 'dataset.json', desc: 'Dataset management, upload, download' },
+      { name: 'Models', endpoints: 13, tags: 5, file: 'models.json', desc: 'Model registry, tags, provenance' },
+      { name: 'Integrations', endpoints: 8, tags: 5, file: 'integrations.json', desc: 'Databricks, Spark, Airflow' },
+      { name: 'Serving', endpoints: 6, tags: 3, file: 'serving.json', desc: 'Model serving, inference' },
+      { name: 'Other', endpoints: 131, tags: 24, file: 'other.json', desc: 'Search, messaging, utilities' }
+    ];
+    
+    const container = document.getElementById('domains');
+    
+    domains.forEach(domain => {
+      const card = document.createElement('a');
+      card.className = 'domain-card';
+      card.href = `explorer.html?spec=specs/${domain.file}`;
+      
+      card.innerHTML = `
+        <div class="domain-name">${domain.name}</div>
+        <div class="domain-stats">
+          <span class="endpoint-count">${domain.endpoints}</span> endpoints · 
+          <span class="tag-count">${domain.tags} tags</span>
+        </div>
+        <div class="tag-count" style="margin-top: 0.5rem">${domain.desc}</div>
+      `;
+      
+      container.appendChild(card);
+    });
+  </script>
+</body>
+</html>

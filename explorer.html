@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hopsworks API Explorer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    .sidebar {
+      width: 300px;
+      background: #161b22;
+      border-right: 1px solid #30363d;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem;
+    }
+    
+    .back-link {
+      display: block;
+      color: #58a6ff;
+      text-decoration: none;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      border-radius: 6px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      text-align: center;
+    }
+    
+    .back-link:hover {
+      border-color: #58a6ff;
+    }
+    
+    .copy-all-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: #238636;
+      border: 1px solid #2ea043;
+      border-radius: 6px;
+      color: #fff;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    
+    .copy-all-btn:hover {
+      background: #2ea043;
+    }
+    
+    .copy-all-btn:active {
+      transform: scale(0.98);
+    }
+    
+    .search-box {
+      width: 100%;
+      padding: 0.75rem;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #c9d1d9;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .search-box:focus {
+      outline: none;
+      border-color: #58a6ff;
+    }
+    
+    .resource-group {
+      margin-bottom: 1rem;
+    }
+    
+    .resource-title {
+      font-weight: 600;
+      color: #8b949e;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0.5rem 0.5rem 0.25rem;
+    }
+    
+    .endpoint-item {
+      padding: 0.5rem;
+      margin: 0.25rem 0;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .endpoint-item:hover {
+      background: #0d1117;
+    }
+    
+    .endpoint-item.active {
+      background: #0d1117;
+      border-left: 2px solid #58a6ff;
+    }
+    
+    .method {
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      min-width: 45px;
+      text-align: center;
+    }
+    
+    .method.get { background: #1f6feb; color: #fff; }
+    .method.post { background: #238636; color: #fff; }
+    .method.put { background: #9e6a03; color: #fff; }
+    .method.delete { background: #da3633; color: #fff; }
+    .method.patch { background: #a371f7; color: #fff; }
+    
+    .endpoint-path {
+      flex: 1;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .content-header {
+      margin-bottom: 2rem;
+    }
+    
+    .content-title {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: #58a6ff;
+    }
+    
+    .content-subtitle {
+      color: #8b949e;
+      font-size: 0.9rem;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    
+    .copy-btn {
+      padding: 0.5rem 1rem;
+      background: #238636;
+      border: 1px solid #2ea043;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    
+    .copy-btn:hover {
+      background: #2ea043;
+    }
+    
+    .copy-btn:active {
+      transform: scale(0.98);
+    }
+    
+    .copy-btn.copied {
+      background: #1f6feb;
+      border-color: #58a6ff;
+    }
+    
+    .endpoint-detail {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .detail-section {
+      margin-bottom: 1.5rem;
+    }
+    
+    .detail-section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .section-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.75rem;
+    }
+    
+    .param-list {
+      list-style: none;
+    }
+    
+    .param-item {
+      padding: 0.75rem;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+    
+    .param-name {
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 0.9rem;
+      color: #79c0ff;
+      margin-right: 0.5rem;
+    }
+    
+    .param-required {
+      background: #da3633;
+      color: #fff;
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      margin-right: 0.5rem;
+    }
+    
+    .param-type {
+      background: #30363d;
+      color: #8b949e;
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      font-family: 'SF Mono', Monaco, monospace;
+    }
+    
+    .param-desc {
+      color: #8b949e;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+    
+    .code-block {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 4px;
+      padding: 1rem;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      color: #79c0ff;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #8b949e;
+    }
+    
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+    
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #0d1117;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #30363d;
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #484f58;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <a href="index.html" class="back-link">← Back to Domains</a>
+    <button class="copy-all-btn" id="copy-all">📋 Copy All for LLM</button>
+    <input type="text" class="search-box" id="search" placeholder="Search endpoints...">
+    <div id="sidebar-content"></div>
+  </div>
+  
+  <div class="main">
+    <div id="main-content">
+      <div class="empty-state">
+        <div class="empty-state-icon">📚</div>
+        <h2>Select an endpoint to view details</h2>
+        <p style="margin-top: 0.5rem;">Use the sidebar to browse available endpoints</p>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const specUrl = params.get('spec') || 'hopsworks-api-4.2.0.json';
+    
+    let apiSpec = null;
+    let allEndpoints = [];
+    let currentEndpoint = null;
+    
+    async function loadSpec() {
+      const response = await fetch(specUrl);
+      apiSpec = await response.json();
+      parseEndpoints();
+      renderSidebar();
+    }
+    
+    function parseEndpoints() {
+      const grouped = {};
+      
+      for (const [path, methods] of Object.entries(apiSpec.paths)) {
+        const pathParts = path.split('/').filter(p => p && !p.startsWith('{'));
+        const resource = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2] || 'root';
+        
+        if (!grouped[resource]) {
+          grouped[resource] = [];
+        }
+        
+        for (const [method, operation] of Object.entries(methods)) {
+          if (typeof operation === 'object' && operation.operationId) {
+            grouped[resource].push({
+              path,
+              method: method.toUpperCase(),
+              operation,
+              resource
+            });
+          }
+        }
+      }
+      
+      allEndpoints = Object.entries(grouped).map(([resource, endpoints]) => ({
+        resource,
+        endpoints: endpoints.sort((a, b) => a.path.localeCompare(b.path))
+      }));
+      
+      allEndpoints.sort((a, b) => a.resource.localeCompare(b.resource));
+    }
+    
+    function generateLLMFormat(endpoint) {
+      const op = endpoint.operation;
+      const baseUrl = apiSpec.servers?.[0]?.url || 'https://hopsworks.ai.local/hopsworks-api';
+      
+      let output = `## ${endpoint.method} ${endpoint.path}\n\n`;
+      
+      if (op.summary) {
+        output += `${op.summary}\n\n`;
+      }
+      
+      if (op.description) {
+        output += `${op.description}\n\n`;
+      }
+      
+      // Required parameters only
+      const requiredParams = (op.parameters || []).filter(p => p.required);
+      if (requiredParams.length > 0) {
+        output += `**Required Parameters:**\n`;
+        requiredParams.forEach(p => {
+          const type = p.schema?.type || 'string';
+          const enumVals = p.schema?.enum ? ` (${p.schema.enum.join('|')})` : '';
+          output += `- \`${p.name}\` (${p.in}, ${type}${enumVals})`;
+          if (p.description) {
+            output += `: ${p.description}`;
+          }
+          output += `\n`;
+        });
+        output += `\n`;
+      }
+      
+      // Request body
+      if (op.requestBody) {
+        output += `**Request Body:**\n`;
+        const contentType = Object.keys(op.requestBody.content || {})[0] || 'application/json';
+        output += `Content-Type: ${contentType}\n`;
+        if (op.requestBody.description) {
+          output += `${op.requestBody.description}\n`;
+        }
+        output += `\n`;
+      }
+      
+      // Example request
+      output += `**Example:**\n\`\`\`bash\n`;
+      output += `curl -X ${endpoint.method} "${baseUrl}${endpoint.path}"`;
+      if (requiredParams.some(p => p.in === 'header') || op.requestBody) {
+        output += ` \\\n  -H "Authorization: Bearer YOUR_TOKEN"`;
+      }
+      if (op.requestBody) {
+        output += ` \\\n  -H "Content-Type: application/json"`;
+        output += ` \\\n  -d '{...}'`;
+      }
+      output += `\n\`\`\`\n\n`;
+      
+      // Response
+      if (op.responses) {
+        const successResponse = op.responses['200'] || op.responses['201'] || op.responses['default'];
+        if (successResponse) {
+          output += `**Response:**\n`;
+          if (successResponse.description) {
+            output += `${successResponse.description}\n`;
+          }
+          if (successResponse.content) {
+            const respType = Object.keys(successResponse.content)[0];
+            output += `Content-Type: ${respType}\n`;
+          }
+        }
+      }
+      
+      return output;
+    }
+    
+    function generateDomainLLMFormat() {
+      const domainName = specUrl.split('/').pop().replace('.json', '');
+      let output = `# Hopsworks API - ${domainName.toUpperCase()}\n\n`;
+      output += `Base URL: ${apiSpec.servers?.[0]?.url || 'https://hopsworks.ai.local/hopsworks-api'}\n\n`;
+      output += `Total endpoints: ${allEndpoints.reduce((sum, g) => sum + g.endpoints.length, 0)}\n\n`;
+      output += `---\n\n`;
+      
+      allEndpoints.forEach(group => {
+        output += `## ${group.resource}\n\n`;
+        group.endpoints.forEach(endpoint => {
+          const op = endpoint.operation;
+          output += `### ${endpoint.method} ${endpoint.path}\n`;
+          if (op.summary) {
+            output += `${op.summary}\n`;
+          }
+          
+          const requiredParams = (op.parameters || []).filter(p => p.required);
+          if (requiredParams.length > 0) {
+            output += `**Required:** `;
+            output += requiredParams.map(p => `\`${p.name}\``).join(', ');
+            output += `\n`;
+          }
+          
+          output += `\n`;
+        });
+      });
+      
+      return output;
+    }
+    
+    async function copyToClipboard(text, button) {
+      try {
+        await navigator.clipboard.writeText(text);
+        const originalText = button.textContent;
+        button.textContent = '✓ Copied!';
+        button.classList.add('copied');
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.classList.remove('copied');
+        }, 2000);
+      } catch (err) {
+        alert('Failed to copy to clipboard');
+      }
+    }
+    
+    function renderSidebar(filter = '') {
+      const sidebar = document.getElementById('sidebar-content');
+      sidebar.innerHTML = '';
+      
+      const filtered = filter 
+        ? allEndpoints.map(group => ({
+            ...group,
+            endpoints: group.endpoints.filter(e => 
+              e.path.toLowerCase().includes(filter.toLowerCase()) ||
+              e.operation.summary?.toLowerCase().includes(filter.toLowerCase()) ||
+              e.operation.operationId?.toLowerCase().includes(filter.toLowerCase())
+            )
+          })).filter(g => g.endpoints.length > 0)
+        : allEndpoints;
+      
+      filtered.forEach(group => {
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'resource-group';
+        
+        const title = document.createElement('div');
+        title.className = 'resource-title';
+        title.textContent = `${group.resource} (${group.endpoints.length})`;
+        groupDiv.appendChild(title);
+        
+        group.endpoints.forEach(endpoint => {
+          const item = document.createElement('div');
+          item.className = 'endpoint-item';
+          item.innerHTML = `
+            <span class="method ${endpoint.method.toLowerCase()}">${endpoint.method}</span>
+            <span class="endpoint-path" title="${endpoint.path}">${endpoint.path}</span>
+          `;
+          item.onclick = () => showEndpoint(endpoint);
+          groupDiv.appendChild(item);
+        });
+        
+        sidebar.appendChild(groupDiv);
+      });
+    }
+    
+    function showEndpoint(endpoint) {
+      currentEndpoint = endpoint;
+      
+      document.querySelectorAll('.endpoint-item').forEach(el => el.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      
+      const main = document.getElementById('main-content');
+      const op = endpoint.operation;
+      
+      const pathParams = (op.parameters || []).filter(p => p.in === 'path');
+      const queryParams = (op.parameters || []).filter(p => p.in === 'query');
+      const headerParams = (op.parameters || []).filter(p => p.in === 'header');
+      
+      const baseUrl = apiSpec.servers?.[0]?.url || 'https://hopsworks.ai.local/hopsworks-api';
+      let curlCmd = `curl -X ${endpoint.method} "${baseUrl}${endpoint.path}"`;
+      
+      if (headerParams.length > 0 || op.requestBody) {
+        curlCmd += ` \\\n  -H "Authorization: Bearer YOUR_TOKEN"`;
+      }
+      
+      if (op.requestBody) {
+        curlCmd += ` \\\n  -H "Content-Type: application/json" \\\n  -d '{...}'`;
+      }
+      
+      main.innerHTML = `
+        <div class="content-header">
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+            <span class="method ${endpoint.method.toLowerCase()}">${endpoint.method}</span>
+            <h1 class="content-title" style="margin: 0;">${endpoint.path}</h1>
+          </div>
+          ${op.summary ? `<p class="content-subtitle">${op.summary}</p>` : ''}
+          ${op.description ? `<p style="color: #8b949e; margin-top: 0.5rem; font-size: 0.9rem;">${op.description}</p>` : ''}
+          <div class="action-buttons">
+            <button class="copy-btn" id="copy-endpoint">📋 Copy for LLM</button>
+          </div>
+        </div>
+        
+        ${pathParams.length > 0 ? `
+        <div class="endpoint-detail">
+          <div class="detail-section">
+            <div class="section-title">Path Parameters</div>
+            <ul class="param-list">
+              ${pathParams.map(p => `
+                <li class="param-item">
+                  <div>
+                    <span class="param-name">${p.name}</span>
+                    ${p.required ? '<span class="param-required">REQUIRED</span>' : ''}
+                    <span class="param-type">${p.schema?.type || 'string'}</span>
+                  </div>
+                  ${p.description ? `<div class="param-desc">${p.description}</div>` : ''}
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+        </div>
+        ` : ''}
+        
+        ${queryParams.length > 0 ? `
+        <div class="endpoint-detail">
+          <div class="detail-section">
+            <div class="section-title">Query Parameters</div>
+            <ul class="param-list">
+              ${queryParams.map(p => `
+                <li class="param-item">
+                  <div>
+                    <span class="param-name">${p.name}</span>
+                    ${p.required ? '<span class="param-required">REQUIRED</span>' : ''}
+                    <span class="param-type">${p.schema?.type || 'string'}</span>
+                  </div>
+                  ${p.description ? `<div class="param-desc">${p.description}</div>` : ''}
+                  ${p.schema?.enum ? `<div class="param-desc">Allowed: ${p.schema.enum.join(', ')}</div>` : ''}
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+        </div>
+        ` : ''}
+        
+        ${op.requestBody ? `
+        <div class="endpoint-detail">
+          <div class="detail-section">
+            <div class="section-title">Request Body</div>
+            <div class="param-desc" style="margin-bottom: 0.5rem;">
+              ${op.requestBody.description || 'Request body required'}
+            </div>
+            <div class="code-block">
+              Content-Type: ${Object.keys(op.requestBody.content || {})[0] || 'application/json'}
+            </div>
+          </div>
+        </div>
+        ` : ''}
+        
+        <div class="endpoint-detail">
+          <div class="detail-section">
+            <div class="section-title">Example Request</div>
+            <div class="code-block">${curlCmd}</div>
+          </div>
+        </div>
+        
+        ${op.responses ? `
+        <div class="endpoint-detail">
+          <div class="detail-section">
+            <div class="section-title">Responses</div>
+            ${Object.entries(op.responses).map(([code, resp]) => `
+              <div style="margin-bottom: 1rem;">
+                <div style="margin-bottom: 0.5rem;">
+                  <span class="param-type">${code}</span>
+                  ${resp.description ? `<span style="margin-left: 0.5rem; color: #8b949e;">${resp.description}</span>` : ''}
+                </div>
+                ${resp.content ? `
+                  <div class="code-block">
+                    Content-Type: ${Object.keys(resp.content)[0]}
+                  </div>
+                ` : ''}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        ` : ''}
+      `;
+      
+      document.getElementById('copy-endpoint').addEventListener('click', function() {
+        const llmText = generateLLMFormat(endpoint);
+        copyToClipboard(llmText, this);
+      });
+      
+      main.scrollTop = 0;
+    }
+    
+    document.getElementById('search').addEventListener('input', (e) => {
+      renderSidebar(e.target.value);
+    });
+    
+    document.getElementById('copy-all').addEventListener('click', function() {
+      const llmText = generateDomainLLMFormat();
+      copyToClipboard(llmText, this);
+    });
+    
+    loadSpec();
+  </script>
+</body>
+</html>
