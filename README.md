@@ -28,7 +28,6 @@ lsof -ti:8080 | xargs kill
 .
 ├── index.html              # Domain selector (landing page)
 ├── explorer.html           # Custom API explorer
-├── viewer.html             # Swagger UI fallback
 ├── split_openapi.py        # Script to split spec by domain
 ├── specs/                  # Domain-specific OpenAPI files
 │   ├── featurestore.json  # 205 endpoints - Feature Store APIs
